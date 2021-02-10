@@ -2,7 +2,7 @@ The following programming techniques can be used to reduce the power
 consumption of the Game Boy hardware and extend the life of the
 batteries.
 
-# Using the HALT Instruction
+# Using the HALT instruction
 
 The HALT instruction should be used whenever possible to reduce power
 consumption & extend the life of the batteries. This command stops the
@@ -18,41 +18,40 @@ more.
 
 When waiting for a vblank event, this would be a BAD example:
 
-```
- @@wait:
-  ld   a,(0FF44h)      ;LY
-  cp   a,144
-  jr   nz,@@wait
+```asm
+.wait
+    ld a, [$FF44] ;LY
+    cp a, 144
+    jr nz, .wait
 ```
 
 A better example would be a procedure as shown below. In this case the
-vblank interrupt must be enabled, and your vblank interrupt procedure
-must set vblank_flag to a non-zero value.
+VBlank interrupt must be enabled, and your VBlank interrupt handler
+must write a non-zero value to `wVBlankFlag`.
 
+```asm
+    ld hl, wVBlankFlag  ; hl = pointer to vblank_flag
+    xor a               ; a = 0
+.wait
+    halt                ; Suspend CPU - wait for ANY interrupt
+    cp [hl]             ; Is VBlank flag still zero?
+    jr z, .wait         ; Wait more if zero
+    ld [hl], a          ; Set vblank_flag back to zero
 ```
-  ld   hl,vblank_flag  ;hl=pointer to vblank_flag
-  xor  a               ;a=0
- @@wait:               ;wait...
-  halt                 ;suspend CPU - wait for ANY interrupt
-  cp   a,(hl)          ;vblank flag still zero?
-  jr   z,@@wait        ;wait more if zero
-  ld   (hl),a          ;set vblank_flag back to zero
-```
-The vblank_flag is used to determine whether the HALT period has been
-terminated by a vblank interrupt, or by another interrupt. In case your
-program has all other interrupts disabled, then it would be okay to
-replace the above procedure by a single HALT instruction.
+
+The VBlank flag is used to determine whether `halt` has been ended
+by a vblank interrupt, or by another interrupt.
 
 Another possibility is, if your game uses no other interrupt than VBlank
 (or uses no interrupt), to only enable VBlank interrupts and simply use
 a halt instruction, which will only resume main code execution when a
 VBlank occurs.
 
-Remember when using HALT to wait between VBlanks, your interrupt
-routines MUST enable interrupts (ie with ei during the execution, or
-better, using the RETI instruction)
+Remember, when using `halt` to wait between VBlanks, your interrupt
+routines MUST enable interrupts (i.e. with `ei` during the execution, or
+better, using the `reti` instruction at their end).
 
-# Using the STOP Instruction
+# Using the STOP instruction
 
 The STOP instruction is intended to switch the Game Boy into VERY low
 power standby mode. For example, a program may use this feature when it
@@ -70,9 +69,9 @@ On CGB, leaving the LCD enabled when invoking STOP will return in a
 black screen. Except if the LCD is in Mode3, where it will keep drawing
 the current screen.
 
-STOP is terminated by one of the P10 to P13 lines going low. For this 
+STOP is terminated by one of the P10 to P13 lines going low. For this
 reason, lines P14 and/or P15 should be asserted by writing $00,
-$10 or $20 to the P1 register before entering STOP (depending on which 
+$10 or $20 to the P1 register before entering STOP (depending on which
 buttons you want to terminate the STOP on).
 
 # Disabling the Sound Controller
