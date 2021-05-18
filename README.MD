@@ -27,27 +27,44 @@ Everything is in plain Markdown and easily editable by anyone with a GitHub acco
 
 [This](https://github.com/gbdev/awesome-gbdev/issues/153) is the RFC proposing the change. You're welcome to discuss the development of this project in our various community channels found [here](https://gbdev.io/chat.html).
 
-Contributing is really easy, fork this repo and edit the files in the **content** directory. Then, you can send your PR.
+Contributing is really easy, fork this repo and edit the files in the **src** directory. Then, you can send your PR.
 
 To deploy Pandocs locally:
 
-```bash
-# Clone the repository
-git clone https://github.com/gbdev/pandocs
-# Move to the render folder
-cd render
-# Install npm dependencies (web app)
-npm install
-# Install Python dependencies (needed to merge every markdown file into one)
-pip3 install -r requirements.txt
-# Run the merge script
-bash merge.sh
-# Run locally the web documentation
-npx vuepress dev
-# Pandocs is live at localhost:8080
-```
+1. Install [Rust](https://www.rust-lang.org/tools/install), [mdBook](https://github.com/rust-lang/mdBook#readme), and [Python 3](https://www.python.org/downloads).
+  mdBook powers the book itself, Rust is used for some custom plugins, and Python for some image generation.
+2. [Install](https://packaging.python.org/tutorials/installing-packages/#requirements-files) the Python prerequisites (`pip3 install -r requirements.txt`)
+3. Within a terminal pointed at the directory `book.toml` is in, run mdBook (`mdbook build` / `mdbook watch` / `mdbook serve`).
+4. The HTML files are in `docs/pandocs/`.
 
-Now, simply edit the markdown files inside the **content** directory, rerun `bash merge.sh` and you should see the result updated at `localhost:8080`.
+  ⚠️ `docs/html/` contains only partially processed files.
+  This folder is what gets served when running `mdbook serve`, so you may see some custom markup missing if using that.
+  As a workaround, you can manually open the files in the `docs/pandocs/` folder in your browser, they just won't auto-refresh on changes.
+
+### Special markup
+
+Pan Docs uses a custom mdBook preprocessor & renderer to enable some special markup:
+
+- ```markdown
+  ::: type HEADING
+  Content
+  :::
+  ```
+
+  These are rendered as "info boxes".
+  `type` must be `tip`, or `warning`.
+  `HEADING` can contain spaces, and be omitted entirely.
+
+- ```markdown
+  [VRAM Sprite Attribute Table (OAM)](<#VRAM Sprite Attribute Table (OAM)>)
+  ```
+
+  Since Pan Docs contains a lot of internal references, and getting the actual anchor is somewhat tedious, internal links are given special treatment.
+  Links whose URL simply begins with a hash are eligible; the rest of the (pseudo-)URL is treated as a section name (as plain text), and the link made to point to that section.
+
+  Note that the angle brackets [are only required if there are spaces in the URL](https://spec.commonmark.org/0.29/#example-485).
+
+  In effect, this means that linking to a section is as simple as copy-pasting its name in the URL field, prepend a `#`, and wrap everything in `<>` if the name contains a space.
 
 ## License
 
