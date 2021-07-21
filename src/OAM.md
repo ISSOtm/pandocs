@@ -1,19 +1,18 @@
 
-# VRAM Sprite Attribute Table (OAM)
+# Object Attribute Memory (OAM)
 
-The Game Boy PPU can display up to 40 sprites either in 8x8 or
-in 8x16 pixels. Because of a limitation of hardware, only ten sprites
-can be displayed per scan line. Sprite tiles have the same format as
-BG tiles, but they are taken from the Sprite Tiles Table located at
+The Game Boy PPU can display up to 40 objects, each either 8×8 or
+8×16 pixels. Because of a hardware limitation, only 10 objects
+can be displayed per scanline. Object tiles have the same format as
+BG tiles, but they are taken from the Object Tiles Table located at
 $8000-8FFF and have unsigned numbering.
 
-Sprite attributes reside in the Sprite Attribute Table (OAM - Object
-Attribute Memory) at \$FE00-FE9F. Each of the 40 entries consists of
-four bytes with the following meanings:
+Object attributes reside in the Object Attribute Memory (OAM) at \$FE00-FE9F.
+Each of the 40 entries consists of four bytes with the following meanings:
 
-## Byte0 - Y Position
+## Byte 0 - Y Position
 
-Y = Sprite's vertical position on the screen + 16. So for example,
+Y = Object's vertical position on the screen + 16. So for example,
 Y=0 hides a sprite,
 Y=2 hides a 8x8 sprite but displays the last two rows of a 8x16 sprite,
 Y=16 displays a sprite at the top of the screen,
@@ -22,13 +21,13 @@ Y=152 displays a 8x8 sprite aligned with the bottom of the screen,
 Y=154 displays the first six rows of a sprite at the bottom of the screen,
 Y=160 hides a sprite.
 
-## Byte1 - X Position
+## Byte 1 - X Position
 
-X = Sprite's horizontal position on the screen + 8. This works similarly
+X = Object's horizontal position on the screen + 8. This works similarly
 to the examples above, except that the width of a sprite is always 8. An
 off-screen value (X=0 or X\>=168) hides the sprite, but the sprite still
-affects the priority ordering, thus other sprites with lower priority may be
-left out due to the ten sprites limit per scan-line.
+affects the priority ordering, thus other objects with lower priority may be
+left out due to the ten objects limit per scan-line.
 A better way to hide a sprite is to set its Y-coordinate off-screen.
 
 ## Byte 2 - Tile Index
@@ -43,15 +42,15 @@ specifies the index of the first (top) tile of the sprite. This is enforced by t
 hardware: the least significant bit of the tile index is ignored; that is, the top 8x8
 tile is "NN & $FE", and the bottom 8x8 tile is "NN | $01".
 
-## Byte3 - Attributes/Flags:
+## Byte 3 - Attributes/Flags:
 
 ```
- Bit7   BG and Window over OBJ (0=No, 1=BG and Window colors 1-3 over the OBJ)
- Bit6   Y flip          (0=Normal, 1=Vertically mirrored)
- Bit5   X flip          (0=Normal, 1=Horizontally mirrored)
- Bit4   Palette number  **Non CGB Mode Only** (0=OBP0, 1=OBP1)
- Bit3   Tile VRAM-Bank  **CGB Mode Only**     (0=Bank 0, 1=Bank 1)
- Bit2-0 Palette number  **CGB Mode Only**     (OBP0-7)
+ Bit 7   BG and Window over OBJ (0=No, 1=BG and Window colors 1-3 over the OBJ)
+ Bit 6   Y flip          (0=Normal, 1=Vertically mirrored)
+ Bit 5   X flip          (0=Normal, 1=Horizontally mirrored)
+ Bit 4   Palette number  **Non CGB Mode Only** (0=OBP0, 1=OBP1)
+ Bit 3   Tile VRAM-Bank  **CGB Mode Only**     (0=Bank 0, 1=Bank 1)
+ Bit 2-0 Palette number  **CGB Mode Only**     (OBP0-7)
 ```
 
 ## Object Priority and Conflicts

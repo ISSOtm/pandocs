@@ -40,3 +40,5 @@ exclude = [
   'print.html', # Do not check the print page, as it is generated separately
   'single.html', # Do not check the single page, as it is generated separately
 ]
+
+[output.markdown]

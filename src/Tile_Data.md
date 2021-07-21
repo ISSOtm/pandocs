@@ -5,11 +5,15 @@ Tile data is stored in VRAM in the memory area at \$8000-$97FF; with each tile
 taking 16 bytes, this area defines data for 384 tiles. In CGB Mode,
 this is doubled (768 tiles) because of the two VRAM banks.
 
-Each tile has 8x8 pixels and has a color depth of 4 colors/gray
-shades. Tiles can be displayed as part of the Background/Window maps,
-and/or as OBJ tiles (foreground sprites). Note that OBJs
-don't use color 0 - it's transparent instead.
+Each tile has 8x8 pixels and has a color depth of 4 colors. Tiles can be
+displayed as part of the [Background/Window tilemaps](<#VRAM Tile Maps>),
+and/or as [OBJ](<#Object Attribute Memory (OAM)>). Note that OBJs don't use
+color 0—it's transparent instead.
 
+## Tile IDs
+
+Tiles are always indexed using a 8-bit integer, but the addressing
+method may differ.
 There are three "blocks" of 128 tiles each:
 
 <table>
@@ -28,56 +32,60 @@ There are three "blocks" of 128 tiles each:
   <tbody>
     <tr>
       <td>0</td>
-      <td>$8000&ndash;$87FF</td>
-      <td>0&ndash;127</td>
-      <td>0&ndash;127</td>
+      <td>$8000–$87FF</td>
+      <td>0–127</td>
+      <td>0–127</td>
       <td></td>
     </tr>
     <tr>
       <td>1</td>
-      <td>$8800&ndash;$8FFF</td>
-      <td>128&ndash;255</td>
-      <td>128&ndash;255</td>
+      <td>$8800–$8FFF</td>
+      <td>128–255</td>
+      <td>128–255</td>
       <td>
-        128&ndash;255 <br />
-        (or -127&ndash;0)
+        128–255 <br />
+        (or -127–0)
       </td>
     </tr>
     <tr>
       <td>2</td>
-      <td>$9000&ndash;$97FF</td>
+      <td>$9000–$97FF</td>
       <td colspan="2">(Can't use)</td>
-      <td>0&ndash;127</td>
+      <td>0–127</td>
     </tr>
   </tbody>
 </table>
 
+- The "$8000 method" uses \$8000 as its base pointer
+  and uses an unsigned addressing, meaning that tiles 0–127 are in block
+  0, and tiles 128–255 are in block 1.
+- The "$8800 method" uses \$9000 as
+  its base pointer and uses a signed addressing, meaning that tiles 0–127
+  are in block 2, and tiles -128 to -1 are in block 1, or to put it
+  differently, "$8800 addressing" takes tiles 0–127 from block 2
+  and tiles 128–255 from block 1.
 
-Tiles are always indexed using a 8-bit integer, but the addressing
-method may differ. The "$8000 method" uses \$8000 as its base pointer
-and uses an unsigned addressing, meaning that tiles 0-127 are in block
-0, and tiles 128-255 are in block 1. The "$8800 method" uses \$9000 as
-its base pointer and uses a signed addressing, meaning that tiles 0-127
-are in block 2, and tiles -128 to -1 are in block 1, or to put it differently,
-"$8800 addressing" takes tiles 0-127 from block 2
-and tiles 128-255 from block 1. (You can notice that block 1 is shared
-by both addressing methods)
+(You may have noticed that block 1 is shared by both addressing methods.)
 
-Sprites always use "$8000 addressing", but the BG and Window can use either
+Objects always use "$8000 addressing", but the BG and Window can use either
 mode, controlled by [LCDC bit 4](<#LCDC.4 - BG and Window tile data area>).
+
+## Tile data format
 
 Each tile occupies 16 bytes, where each line is represented by 2 bytes:
 
 ```
-Byte 0-1  Topmost Line (Top 8 pixels)
-Byte 2-3  Second Line
+Byte 0–1  Topmost Line (Top 8 pixels)
+Byte 2–3  Second Line
 etc.
 ```
 
 For each line, the first byte specifies the least significant bit of the
 color ID of each pixel, and the second byte specifies the most significant bit.
 In both bytes, bit 7 represents the leftmost pixel, and
-bit 0 the rightmost. For example: let's say you have \$57 \$36 (in
+bit 0 the rightmost.
+
+For example: let's say you have \$57 \$36 (in
 this order in memory), which in binary are 01010111 and 00110110.
 To obtain the color ID for the leftmost pixel,
 you take bit 7 of both bytes: 0, and 0. Thus the index is binary 00 = 0. For

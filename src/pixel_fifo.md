@@ -31,7 +31,7 @@ Each pixel in the FIFO has four properties:
 - Color: a value between 0 and 3
 - Palette: on CGB a value between 0 and 7 and on DMG this only applies to sprites
 - Sprite Priority: on CGB this is the OAM index for the sprite and on DMG this doesn't exist
-- Background Priority: holds the value of the [OBJ-to-BG Priority](<#VRAM Sprite Attribute Table (OAM)>) bit
+- Background Priority: holds the value of the [OBJ-to-BG Priority](<#Object Attribute Memory (OAM)>) bit
 
 ## FIFO Pixel Fetcher
 
